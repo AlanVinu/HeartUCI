@@ -1,0 +1,39 @@
+---
+title: "Heart Disease UCI"
+output: html_notebook
+---
+
+Lets load the required packages first
+
+```{r}
+library(readr) #to load dataset
+library(tidyverse) #`tidyverse` contains packages like dplyr and ggplot which helps in exploration
+library(ggthemes) #plot themes
+library(corrplot) #for correlation plot
+```
+
+Now lets load the data and take a peak
+
+```{r}
+library(readr)
+heart <- read_csv("heart.csv")
+glimpse(heart)
+```
+
+Here lets take a moment to understand the variables :
+
+[01] age       - Age in Years
+[02] sex       - 1: Male, 0: Female
+[03] cp        - Chest Pain (3 Levels -  1: Typical Angina, 2: Atypical Angina, 3: Non-Anginal Pain, 4:                   Asymptomatic) 
+[04] trestbps  - Resting Blood Pressure (mm Hg; On Admission to the Hospital)
+[05] chol      - Cholestrol Level (mg/dl)
+[06] fbs       - Fasting Blood Sugar (> 120 mg/dl; 1: TRUE, 0: FALSE)
+[07] restecg   - Resting Electrocardiographic Measurement (0: Normal, 1: Having ST-T Wave Abnormality, 
+                 2: Showing Probable or Definite Left Ventricular Hypertrophy by Estes' Criteria)
+[08] thalach   - Maximum Heart Rate Achieved
+[09] exang     - Exercise Induced Angina (1: Yes, 0: No)
+[10] oldpeak   - ST Depression Induced by Exercise Relative to Rest('ST' denotes the positions on ECG                     Graph)
+[11] slope     - Slope of the Peak Exercise ST Segment (1: Upsloping, 2: Flat, 3: Downsloping)
+[12] ca        - Number of Major Vessels (0-3)
+[13] thal      - A Blood Disorder Called Thalassemia (3: Normal, 6: Fixed Defect, 7: Reversable Defect)
+[14] target    - Heart Disease (0: NO, 1: Yes)
