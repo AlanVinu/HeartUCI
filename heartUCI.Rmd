@@ -10,6 +10,7 @@ library(readr) #to load dataset
 library(tidyverse) #`tidyverse` contains packages like dplyr and ggplot which helps in exploration
 library(ggthemes) #plot themes
 library(corrplot) #for correlation plot
+library(randomForest) #for predictive analysis
 ```
 
 Now lets load the data and take a peak
@@ -42,7 +43,7 @@ Lets change the column names to make it easier to read the data
 ```{r}
 colnames(heart)[1:9] <- c("Age", "Sex", "Chest_Pain", "Resting_BP", "Cholestrol", "Fasting_Blood_Sugar",
                            "Resting_ECG", "Max_Heart_Rate", "Excercise_Induced_Angina")
-colnames(heart)[12:14] <- c("No._Major_Vessels", "Thalassemia", "Heart_Disease")
+colnames(heart)[12:14] <- c("Num_Major_Vessels", "Thalassemia", "Heart_Disease")
 head(heart, n = 10)
 ```
 
@@ -59,3 +60,64 @@ corrplot(heartcor, method = "pie", type = "lower")
  <li>Chest pain and maximum heart rate has positive correlation to the presence of heart disease.</li>
  <li>While, excercise induced angima, oldpeak has negative correlation.</li>
 </ol>
+
+Let's do a bit more exploration and find out the percentage of people with heart disease in this dataset :
+
+```{r}
+round(table(heart$Heart_Disease)/nrow(heart), digits = 2)
+```
+
+So about 54% has heart disease and 46% does not have a heart disease in this dataset.
+
+Now let's start with analysing :
+
+first the data needs to be split
+
+```{r}
+sample.ind <- sample(2, nrow(heart), replace = T, prob = c(0.6,0.4))
+
+heart.train <- heart[sample.ind==1,]
+heart.test <- heart[sample.ind==2,]
+```
+
+Now let's check the heart disease probabilities in the now split dataset :
+
+```{r}
+round(table(heart.train$Heart_Disease)/nrow(heart.train), digits = 2)
+round(table(heart.test$Heart_Disease)/nrow(heart.test), digits = 2)
+```
+
+Now let's begin building the classification random forest :
+
+first the formula needs to be made -
+
+```{r}
+attributes <- names(heart)
+attributes <- attributes[!attributes %in% c("Heart_Disease")]
+attributes1 <- paste(attributes, collapse = "+")
+formula <- as.formula(paste("Heart_Disease", attributes1, sep = " ~ "))
+```
+
+Now we can build the forest model, let's make 500 decision trees : 
+
+```{r}
+model.rf <- randomForest(formula, heart.train,
+                              ntree=1000,
+                              importance=T)
+plot(model.rf)
+legend("top", colnames(model.rf$err.rate),col=1:3,cex=0.8,fill=1:3)
+```
+
+```{r}
+varImpPlot(model.rf,
+           sort = T,
+           main="Variable Importance",
+           n.var=5)
+```
+
+```{r}
+var.imp <- data.frame(importance(model.rf, type=2))
+var.imp$Variables <- row.names(var.imp)
+var.imp[order(var.imp$MeanDecreaseGini,decreasing = T),]
+```
+
